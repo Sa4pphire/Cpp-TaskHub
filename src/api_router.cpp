@@ -89,6 +89,15 @@ HttpResponse ApiRouter::handle(const HttpRequest& request) const {
             return json_response(200, {{"data", {{"status", "ok"}}}});
         }
 
+        if (request.method == "GET" && request.path == "/stats") {
+            const TaskStats stats = service_->stats();
+            return json_response(200, {{"data",
+                                        {{"todo", stats.todo},
+                                         {"doing", stats.doing},
+                                         {"done", stats.done},
+                                         {"total", stats.total}}}});
+        }
+
         if (request.method == "POST" && request.path == "/tasks") {
             const json body = parse_json_body(request.body);
             const auto title = optional_string(body, "title");
