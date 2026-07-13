@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <optional>
 #include <string>
 
@@ -28,6 +29,13 @@ struct UpdateTask {
     std::optional<std::string> title;
     std::optional<std::string> description;
     std::optional<TaskStatus> status;
+};
+
+struct TaskStats {
+    std::size_t todo{};
+    std::size_t doing{};
+    std::size_t done{};
+    std::size_t total{};
 };
 
 }  // namespace taskhub

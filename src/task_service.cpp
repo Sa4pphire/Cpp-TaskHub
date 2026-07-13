@@ -55,6 +55,25 @@ std::vector<Task> TaskService::list(std::optional<TaskStatus> status) {
     return repository_->list(status);
 }
 
+TaskStats TaskService::stats() {
+    TaskStats result;
+    for (const Task& task : repository_->list(std::nullopt)) {
+        ++result.total;
+        switch (task.status) {
+            case TaskStatus::Todo:
+                ++result.todo;
+                break;
+            case TaskStatus::Doing:
+                ++result.doing;
+                break;
+            case TaskStatus::Done:
+                ++result.done;
+                break;
+        }
+    }
+    return result;
+}
+
 std::optional<Task> TaskService::update(long long id, UpdateTask request) {
     if (id <= 0) {
         return std::nullopt;

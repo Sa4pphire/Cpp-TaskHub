@@ -15,6 +15,7 @@ public:
     Task create(CreateTask request);
     std::optional<Task> find_by_id(long long id);
     std::vector<Task> list(std::optional<TaskStatus> status);
+    TaskStats stats();
     std::optional<Task> update(long long id, UpdateTask request);
     bool remove(long long id);
 
