@@ -10,6 +10,19 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 option(TASKHUB_BUILD_TESTS "Build TaskHub tests" ON)
+option(TASKHUB_WARNINGS_AS_ERRORS "Treat compiler warnings as errors" OFF)
+option(TASKHUB_ENABLE_TSAN "Enable ThreadSanitizer" OFF)
+
+function(taskhub_configure_target target)
+    target_compile_options(${target} PRIVATE -Wall -Wextra -Wpedantic)
+    if(TASKHUB_WARNINGS_AS_ERRORS)
+        target_compile_options(${target} PRIVATE -Werror)
+    endif()
+    if(TASKHUB_ENABLE_TSAN)
+        target_compile_options(${target} PRIVATE -fsanitize=thread -fno-omit-frame-pointer)
+        target_link_options(${target} PRIVATE -fsanitize=thread)
+    endif()
+endfunction()
 
 find_package(SQLite3 REQUIRED)
 find_package(Threads REQUIRED)
@@ -31,7 +44,7 @@ add_library(taskhub_core
 )
 target_include_directories(taskhub_core PUBLIC include)
 target_link_libraries(taskhub_core PUBLIC SQLite::SQLite3 Threads::Threads)
-target_compile_options(taskhub_core PRIVATE -Wall -Wextra -Wpedantic)
+taskhub_configure_target(taskhub_core)
 
 add_library(taskhub_http
     src/http_server.cpp
@@ -39,15 +52,16 @@ add_library(taskhub_http
 )
 target_include_directories(taskhub_http PUBLIC include)
 target_link_libraries(taskhub_http PUBLIC taskhub_core Threads::Threads nlohmann_json::nlohmann_json)
-target_compile_options(taskhub_http PRIVATE -Wall -Wextra -Wpedantic)
+taskhub_configure_target(taskhub_http)
 
 add_executable(taskhub src/main.cpp)
 target_link_libraries(taskhub PRIVATE taskhub_http)
+taskhub_configure_target(taskhub)
 
 if(TASKHUB_BUILD_TESTS)
     enable_testing()
     add_executable(taskhub_tests tests/taskhub_tests.cpp)
     target_link_libraries(taskhub_tests PRIVATE taskhub_http)
-    target_compile_options(taskhub_tests PRIVATE -Wall -Wextra -Wpedantic)
+    taskhub_configure_target(taskhub_tests)
     add_test(NAME taskhub_tests COMMAND taskhub_tests)
 endif()
