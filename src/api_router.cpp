@@ -81,7 +81,11 @@ std::optional<std::string> query_value(const std::string& query, const std::stri
 
 }  // namespace
 
-ApiRouter::ApiRouter(std::shared_ptr<TaskService> service) : service_(std::move(service)) {}
+ApiRouter::ApiRouter(std::shared_ptr<TaskService> service) : service_(std::move(service)) {
+    if (service_ == nullptr) {
+        throw ValidationError("Task service must not be null");
+    }
+}
 
 HttpResponse ApiRouter::handle(const HttpRequest& request) const {
     try {
