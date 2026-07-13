@@ -172,6 +172,10 @@ void test_health_endpoint() {
     EXPECT_EQ(json::parse(response.body)["data"]["status"].get<std::string>(), "ok");
 }
 
+void test_router_rejects_null_service() {
+    expect_validation_error([] { ApiRouter router(std::shared_ptr<TaskService>{}); });
+}
+
 void test_stats_are_zero_when_empty() {
     Context context;
     const auto stats = context.service->stats();
@@ -296,6 +300,7 @@ int main() {
         {"long description", test_long_description_is_rejected},
         {"empty update", test_empty_update_is_rejected},
         {"health endpoint", test_health_endpoint},
+        {"null router service", test_router_rejects_null_service},
         {"empty stats", test_stats_are_zero_when_empty},
         {"mixed stats", test_stats_count_mixed_statuses},
         {"stats endpoint", test_stats_endpoint_returns_counts},
